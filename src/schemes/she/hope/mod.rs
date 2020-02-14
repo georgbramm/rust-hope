@@ -23,6 +23,7 @@ extern crate paillier;
 extern crate serde_json;
 
 pub mod bplus;
+pub mod websocket;
 use crate::schemes::she::hope::bplus::tree::Node;
 use crate::schemes::she::hope::bplus::tree::node::Leaf;
 use crate::schemes::she::hope::bplus::Tree;

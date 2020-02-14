@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<meta charset="utf-8" />
+<html>
+<head>
+<link rel="apple-touch-icon" sizes="57x57" href="/static/img/apple-icon-57x57.png">
+<link rel="apple-touch-icon" sizes="60x60" href="/static/img/apple-icon-60x60.png">
+<link rel="apple-touch-icon" sizes="72x72" href="/static/img/apple-icon-72x72.png">
+<link rel="apple-touch-icon" sizes="76x76" href="/static/img/apple-icon-76x76.png">
+<link rel="apple-touch-icon" sizes="114x114" href="/static/img/apple-icon-114x114.png">
+<link rel="apple-touch-icon" sizes="120x120" href="/static/img/apple-icon-120x120.png">
+<link rel="apple-touch-icon" sizes="144x144" href="/static/img/apple-icon-144x144.png">
+<link rel="apple-touch-icon" sizes="152x152" href="/static/img/apple-icon-152x152.png">
+<link rel="apple-touch-icon" sizes="180x180" href="/static/img/apple-icon-180x180.png">
+<link rel="icon" type="image/png" sizes="192x192"  href="/static/img/android-icon-192x192.png">
+<link rel="icon" type="image/png" sizes="32x32" href="/static/img/favicon-32x32.png">
+<link rel="icon" type="image/png" sizes="96x96" href="/static/img/favicon-96x96.png">
+<link rel="icon" type="image/png" sizes="16x16" href="/static/img/favicon-16x16.png">
+<link rel="manifest" href="/static/img/manifest.json">
+<meta name="msapplication-TileColor" content="#ffffff">
+<meta name="msapplication-TileImage" content="/static/img/ms-icon-144x144.png">
+<meta name="theme-color" content="#ffffff">
+<script src="http://ajax.googleapis.com/ajax/libs/jquery/1.4.2/jquery.min.js">
+</script>
+  <script language="javascript" type="text/javascript">
+    $(function() {
+      var conn = null;
+      function log(msg) {
+        var control = $('#log');
+        control.html(control.html() + msg + '<br/>');
+        control.scrollTop(control.scrollTop() + 1000);
+      }
+      function connect() {
+        disconnect();
+        var wsUri = (window.location.protocol=='https:'&&'wss://'||'ws://')+window.location.host + '/router/';
+        conn = new WebSocket(wsUri);
+        log('Connecting...');
+        conn.onopen = function() {
+          log('Connected.');
+          update_ui();
+        };
+        conn.onmessage = function(e) {
+          log('Received: ' + e.data);
+        };
+        conn.onclose = function() {
+          log('Disconnected.');
+          conn = null;
+          update_ui();
+        };
+      }
+      function disconnect() {
+        if (conn != null) {
+          log('Disconnecting...');
+          conn.close();
+          conn = null;
+          update_ui();
+        }
+      }
+      function update_ui() {
+        var msg = '';
+        if (conn == null) {
+          $('#status').text('disconnected');
+          $('#connect').html('Connect');
+        } else {
+          $('#status').text('connected (' + conn.protocol + ')');
+          $('#connect').html('Disconnect');
+        }
+      }
+      $('#connect').click(function() {
+        if (conn == null) {
+          connect();
+        } else {
+          disconnect();
+        }
+        update_ui();
+        return false;
+      });
+      $('#send').click(function() {
+        var text = $('#text').val();
+        log('Sending: ' + text);
+        conn.send(text);
+        $('#text').val('').focus();
+        return false;
+      });
+      $('#text').keyup(function(e) {
+        if (e.keyCode === 13) {
+          $('#send').click();
+          return false;
+        }
+      });
+    });
+</script>
+</head>
+<body>
+<h3>Chat!</h3>
+<div>
+  <button id="connect">Connect</button>&nbsp;|&nbsp;Status:
+  <span id="status">disconnected</span>
+</div>
+<div id="log"
+     style="width:20em;height:15em;overflow:auto;border:1px solid black">
+</div>
+<form id="chatform" onsubmit="return false;">
+  <input id="text" type="text" />
+  <input id="send" type="button" value="Send" />
+</form>
+</body>
+</html>

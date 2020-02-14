@@ -21,6 +21,13 @@ impl Leaf {
             _o: 0u64,
         }
     }
+    pub fn gen(_num: u64, _ek: EncryptionKey) -> Leaf {
+        Leaf {
+            _id: ObjectId::new().unwrap(),
+            _c: Paillier::encrypt(&_ek, _num),
+            _o: 0u64,
+        }
+    }
 }
 
 impl Ord for Leaf {
